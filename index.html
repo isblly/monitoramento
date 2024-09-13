@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoramento Ambiental</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>Monitoramento Ambiental</h1>
+    
+    <h2>Cadastro de Materiais</h2>
+    <form id="materialForm">
+        <label for="materialName">Nome do Material:</label>
+        <input type="text" id="materialName" required>
+        <label for="quantity">Quantidade (kg):</label>
+        <input type="number" id="quantity" required>
+        <label for="carbonFootprint">Pegada de Carbono (kg CO2 por kg):</label>
+        <input type="number" id="carbonFootprint" step="0.01" required>
+        <button type="submit">Adicionar Material</button>
+    </form>
+    
+    <h2>Cadastro de Processos</h2>
+    <form id="processForm">
+        <label for="processName">Nome do Processo:</label>
+        <input type="text" id="processName" required>
+        <label for="energyUsage">Uso de Energia (kWh):</label>
+        <input type="number" id="energyUsage" required>
+        <label for="emission">Emissão de Poluentes (kg CO2):</label>
+        <input type="number" id="emission" step="0.01" required>
+        <button type="submit">Adicionar Processo</button>
+    </form>
+    
+    <h2>Relatórios</h2>
+    <button onclick="generateReport()">Gerar Relatório</button>
+    <div id="report"></div>
+
+    <script>
+        document.getElementById('materialForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const material = {
+                name: document.getElementById('materialName').value,
+                quantity: parseFloat(document.getElementById('quantity').value),
+                carbonFootprint: parseFloat(document.getElementById('carbonFootprint').value)
+            };
+            fetch('/api/material', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(material)
+            }).then(response => response.json())
+              .then(data => alert('Material adicionado com sucesso!'));
+        });
+
+        document.getElementById('processForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const process = {
+                name: document.getElementById('processName').value,
+                energyUsage: parseFloat(document.getElementById('energyUsage').value),
+                emission: parseFloat(document.getElementById('emission').value)
+            };
+            fetch('/api/process', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(process)
+            }).then(response => response.json())
+              .then(data => alert('Processo adicionado com sucesso!'));
+        });
+
+        function generateReport() {
+            fetch('/api/report')
+                .then(response => response.json())
+                .then(data => {
+                    const reportDiv = document.getElementById('report');
+                    reportDiv.innerHTML = `<h3>Relatório de Impacto Ambiental</h3>
+                                           <p>Total de Pegada de Carbono: ${data.totalCarbonFootprint} kg CO2</p>
+                                           <p>Total de Emissão de Poluentes: ${data.totalEmission} kg CO2</p>`;
+                });
+        }
+    </script>
+</body>
+</html>
